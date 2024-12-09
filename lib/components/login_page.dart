@@ -54,7 +54,7 @@ class _LoginScreenState extends State<LoginPage> {
 
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
+        MaterialPageRoute(builder: (context) => ArtisanHomePage()),
       );
     } on FirebaseAuthException catch (e) {
       String errorMessage;

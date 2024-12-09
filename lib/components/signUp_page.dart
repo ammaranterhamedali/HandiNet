@@ -155,7 +155,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   onPressed: () {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
-                      return const HomePage();
+                      return ArtisanHomePage();
                     }));
                   },
                   style: ElevatedButton.styleFrom(
