@@ -11,7 +11,7 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  String? userType = "Client"; 
+  String? userType;
   final TextEditingController fullNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController mobileController = TextEditingController();
@@ -78,147 +78,135 @@ class _SignUpPageState extends State<SignUpPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: const Center(
-          child: Text(
-            "Sign Up",
-            style: TextStyle(
-              fontSize: 24.0,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        ),
-        backgroundColor: Colors.blue,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Container( 
-              margin: const EdgeInsets.symmetric(vertical: 15),
-              decoration: BoxDecoration(
-                border: Border.all(
-                    style: BorderStyle.solid, color: Colors.green, width: 2),
-                borderRadius: BorderRadius.circular(10),
+      backgroundColor: const Color(0xffF0F4F7),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Sign Up',
+                style: TextStyle(
+                  letterSpacing: 1.5,
+                  color: Colors.teal,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: userType,
-                  onChanged: (value) {
-                    setState(() {
-                      userType = value;
-                    });
-                  },
-                  items: const [
-                    DropdownMenuItem(
-                        value: "Client",
-                        child: Text(
-                          "Client",
-                          style: TextStyle(
-                              fontSize: 16.0, fontWeight: FontWeight.w800),
-                        )),
-                    DropdownMenuItem(
-                        value: "Craftsman",
-                        child: Text(
-                          "Craftsman",
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        )),
-                  ],
-                  hint: const Text(
-                    "Choose Account Type",
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w800,
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 15),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                      style: BorderStyle.solid, color: Colors.teal, width: 2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: userType,
+                    onChanged: (value) {
+                      setState(() {
+                        userType = value;
+                      });
+                    },
+                    items: const [
+                      DropdownMenuItem(
+                          value: "Client",
+                          child: Text(
+                            "Client",
+                            style: TextStyle(
+                                fontSize: 16.0, fontWeight: FontWeight.w800),
+                          )),
+                      DropdownMenuItem(
+                          value: "Craftsman",
+                          child: Text(
+                            "Craftsman",
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          )),
+                    ],
+                    hint: const Text(
+                      "Choose Account Type",
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
-                  ),
-                  icon: const Icon(Icons.person),
-                  iconSize: 30,
-                  isExpanded: true,
-                  dropdownColor: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  padding: const EdgeInsets.all(10),
-                  iconEnabledColor: Colors.green,
-                  iconDisabledColor: Colors.grey,
-                  style: const TextStyle(color: Colors.black),
-                  isDense: true,
-                  focusColor: const Color.fromARGB(255, 253, 255, 253),
-                ),
-              ),
-            ),
-            ...fields,
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return const HomePage();
-                  }));
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.horizontal(
-                          left: Radius.circular(10),
-                          right: Radius.circular(10))),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                    vertical: 8.0,
-                  ),
-                  backgroundColor: Colors.blue,
-                ),
-                child: const Text(
-                  "Sign Up",
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    icon: const Icon(Icons.person),
+                    iconSize: 30,
+                    isExpanded: true,
+                    dropdownColor: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    padding: const EdgeInsets.all(10),
+                    iconEnabledColor: Colors.teal,
+                    iconDisabledColor: Colors.grey,
+                    style: const TextStyle(color: Colors.black),
+                    isDense: true,
                   ),
                 ),
               ),
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Already have an account? ',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.black,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {
+              ...fields,
+              const SizedBox(height: 18),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
-                      return const LoginPage();
+                      return const HomePage();
                     }));
                   },
+                  style: ElevatedButton.styleFrom(
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    backgroundColor: Colors.teal,
+                    elevation: 3,
+                  ),
                   child: const Text(
-                    'Login',
+                    "Sign Up",
                     style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.blue,
+                      fontSize: 14.0,
                       fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.underline,
+                      color: Colors.white,
                     ),
                   ),
                 ),
-              ],
-            )
-          ],
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    "Already have an account? ",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return const LoginPage();
+                      }));
+                    },
+                    child: const Text(
+                      'Login',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.teal,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

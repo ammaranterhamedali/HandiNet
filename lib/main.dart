@@ -1,7 +1,13 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:handi_net_app/components/login_page.dart';
+import 'package:handi_net_app/components/startPage.dart';
+import 'package:handi_net_app/firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const HandiNet());
 }
 
@@ -17,7 +23,7 @@ class _HandiNetState extends State<HandiNet> {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      home: StartPage(),
     );
   }
 }

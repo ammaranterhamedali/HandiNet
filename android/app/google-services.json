@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "799981520759",
+    "project_id": "handinet-1058d",
+    "storage_bucket": "handinet-1058d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:799981520759:android:18fe639f9a646c8e1c8372",
+        "android_client_info": {
+          "package_name": "com.example.handi_net_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5OzGOhgp_5z8sgXt6zd4b4JLO2FyyRzw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

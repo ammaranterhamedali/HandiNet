@@ -1,0 +1,28 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "handinet-1058d",
+          "appId": "1:799981520759:android:18fe639f9a646c8e1c8372",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "handinet-1058d",
+          "configurations": {
+            "android": "1:799981520759:android:18fe639f9a646c8e1c8372",
+            "ios": "1:799981520759:ios:0ebeeb2c2a2d03321c8372",
+            "macos": "1:799981520759:ios:0ebeeb2c2a2d03321c8372",
+            "web": "1:799981520759:web:ee80c01b183abfae1c8372",
+            "windows": "1:799981520759:web:e8de49fbbfdda1071c8372"
+          }
+        }
+      }
+    }
+  },
+  "emulators": {
+    "singleProjectMode": true
+  }
+}
