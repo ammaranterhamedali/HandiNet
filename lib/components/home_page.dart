@@ -1,6 +1,72 @@
 import 'package:flutter/material.dart';
+import 'package:handi_net_app/components/SettingsPage.dart';
+import 'package:handi_net_app/components/chatPage.dart';
+import 'package:handi_net_app/components/profilePage.dart';
+import 'package:handi_net_app/components/ArtisansPage.dart';
 
-class ArtisanHomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  const HomePage({super.key, required this.email});
+  final String email;
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int _currentIndex = 0;
+  late List<Widget> _pages;
+
+  @override
+  Widget build(BuildContext context) {
+    _pages = [
+      MainHomPage(),
+      ArtisansPage(),
+      ChatPage(email: widget.email),
+      ProfilePage(),
+      SettingsPage(),
+    ];
+
+    return Scaffold(
+      body: _pages[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.teal,
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people),
+            label: 'Artisans',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.message),
+            label: 'Messages',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_circle),
+            label: 'Profile',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class MainHomPage extends StatelessWidget {
+  const MainHomPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,8 +86,8 @@ class ArtisanHomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Welcome Section
-            Padding(
-              padding: const EdgeInsets.all(16.0),
+            const Padding(
+              padding: EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -112,8 +178,8 @@ class ArtisanHomePage extends StatelessWidget {
             SizedBox(height: 20),
 
             // Featured Artisans Section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
                 'Featured Artisans',
                 style: TextStyle(

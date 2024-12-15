@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:handi_net_app/components/buildTextField.dart';
-import 'package:handi_net_app/components/forgotPassword.dart';
+import 'package:handi_net_app/components/forgotPasswordPage.dart';
 import 'package:handi_net_app/components/home_page.dart';
+import 'package:handi_net_app/components/showMessage.dart';
 import 'package:handi_net_app/components/signUp_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -21,42 +23,49 @@ class _LoginScreenState extends State<LoginPage> {
     return regex.hasMatch(email);
   }
 
-  void showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.red,
-        content: Text(
-          message,
-          style: const TextStyle(color: Colors.white, fontSize: 16.0),
-        ),
-      ),
-    );
-  }
-
   Future<void> validateLogin() async {
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
-    if (!isValidEmail(email)) {
-      showError("Please enter a valid email address.");
-      return;
-    }
 
-    if (password.isEmpty) {
-      showError("Password cannot be empty.");
+    if (!isValidEmail(email)) {
+      showMessage(
+        context,
+        message: "Please enter a valid email address.",
+        color: Colors.red,
+      );
       return;
     }
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      Navigator.push(
+      final userId = userCredential.user!.uid;
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      if (!userDoc.exists) {
+        if (!mounted) return;
+        showMessage(
+          context,
+          message: "User data not found.",
+        );
+        return;
+      }
+      if (!mounted) return;
+      Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => ArtisanHomePage()),
+        MaterialPageRoute(
+          builder: (context) => HomePage(email: email),
+        ),
       );
     } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
       String errorMessage;
       switch (e.code) {
         case 'user-not-found':
@@ -66,16 +75,25 @@ class _LoginScreenState extends State<LoginPage> {
           errorMessage = 'Incorrect password.';
           break;
         case 'invalid-email':
-          errorMessage = 'The email address is invalid.';
+          errorMessage = 'The email address is not valid.';
           break;
-        case 'invalid-credential':
-          errorMessage =
-              'No account found with these credentials. Please check your email and password.';
+        case 'too-many-requests':
+          errorMessage = 'Too many login attempts. Please try again later.';
           break;
         default:
-          errorMessage = 'An unexpected error occurred: ${e.message}';
+          errorMessage =
+              'An error occurred while trying to log in. Please try again later\n${e.message}';
       }
-      showError(errorMessage);
+      showMessage(
+        context,
+        message: errorMessage,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      showMessage(
+        context,
+        message: 'Unexpected error: $e',
+      );
     }
   }
 
@@ -114,7 +132,6 @@ class _LoginScreenState extends State<LoginPage> {
                 controller: emailController,
                 fillColor: Colors.white,
               ),
-              const SizedBox(height: 8.0),
               Buildtextfield(
                 labelText: "Password",
                 hintText: "Enter your password",
@@ -131,7 +148,7 @@ class _LoginScreenState extends State<LoginPage> {
                   onTap: () {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
-                      return const Forgotpassword();
+                      return const ForgotPasswordPage();
                     }));
                   },
                   child: const Text(
@@ -180,7 +197,7 @@ class _LoginScreenState extends State<LoginPage> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(context,
+                      Navigator.pushReplacement(context,
                           MaterialPageRoute(builder: (context) {
                         return const SignUpPage();
                       }));

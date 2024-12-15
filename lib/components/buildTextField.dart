@@ -32,7 +32,7 @@ class _BuildtextfieldState extends State<Buildtextfield> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: TextField(
         controller: widget.controller,
         obscureText: widget.isPassword ? _isObscured : false,
@@ -52,7 +52,7 @@ class _BuildtextfieldState extends State<Buildtextfield> {
           filled: true,
           fillColor: widget.fillColor,
           contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
           prefixIcon: Icon(widget.prefixIcon, color: Colors.blue),
           suffixIcon: widget.isPassword
               ? IconButton(
