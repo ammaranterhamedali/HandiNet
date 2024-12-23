@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:handi_net_app/components/chat_buble.dart';
-import 'package:handi_net_app/models/message.dart';
+import 'package:handi_net_app/models/messageModel.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key, required this.email});
+   const ChatPage({super.key, required this.email});
 
   final String email;
   static String id = 'ChatPage';
@@ -25,13 +25,13 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         backgroundColor: Colors.teal,
         title: const Text(
           'Chat',
           style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _messagesCollection

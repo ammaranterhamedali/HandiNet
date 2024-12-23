@@ -1,8 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:handi_net_app/components/ArtisanProfilePage.dart';
+import 'package:handi_net_app/components/ServicesPage.dart';
 import 'package:handi_net_app/components/SettingsPage.dart';
 import 'package:handi_net_app/components/chatPage.dart';
+import 'package:handi_net_app/components/notification_page.dart';
+import 'package:handi_net_app/components/post_job_page.dart';
+import 'package:handi_net_app/components/post_list_page.dart';
 import 'package:handi_net_app/components/profilePage.dart';
-import 'package:handi_net_app/components/ArtisansPage.dart';
+import 'package:handi_net_app/models/artisanModel.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.email});
@@ -18,15 +24,32 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     _pages = [
-      MainHomPage(),
-      ArtisansPage(),
+      const MainHomePage(),
+      const PostListPage(),
+      const ServicesPage(),
+      const ProfilePage(),
       ChatPage(email: widget.email),
-      ProfilePage(),
-      SettingsPage(),
+      const NotificationsPage(),
+      const SettingsPage(),
     ];
 
     return Scaffold(
       body: _pages[_currentIndex],
+      floatingActionButton: _currentIndex == 1
+          ? FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PostJobPage()),
+                );
+              },
+              backgroundColor: Colors.teal,
+              child: const Icon(
+                Icons.add,
+                color: Colors.white,
+              ),
+            )
+          : null,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -43,16 +66,24 @@ class _HomePageState extends State<HomePage> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'Artisans',
+            icon: Icon(Icons.post_add),
+            label: 'Posts',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.design_services),
+            label: 'Services',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_circle),
+            label: 'Profile',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.message),
             label: 'Messages',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            label: 'Profile',
+            icon: Icon(Icons.notification_add_outlined),
+            label: 'Notification',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
@@ -64,8 +95,36 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class MainHomPage extends StatelessWidget {
-  const MainHomPage({super.key});
+class MainHomePage extends StatefulWidget {
+  const MainHomePage({super.key});
+
+  @override
+  _MainHomePageState createState() => _MainHomePageState();
+}
+
+class _MainHomePageState extends State<MainHomePage> {
+  String searchQuery = '';
+  String selectedCategory = 'All';
+  List<String> categories = [
+    'All',
+    'Plumbing',
+    'Carpentry',
+    'Electrical',
+    'Painting',
+    'Cleaning',
+    'Air Conditioning',
+  ];
+
+  Future<List<Artisan>> fetchArtisans() async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('userType', isEqualTo: 'Craftsman')
+        .get();
+
+    return snapshot.docs.map((doc) {
+      return Artisan.fromMap(doc.data());
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,97 +144,83 @@ class MainHomPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Welcome Section
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    'Find Your Perfect Artisan',
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Browse and connect with professionals in your area.',
-                    style: TextStyle(fontSize: 16, color: Colors.white70),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-
-            // Search Section
+            // Search Bar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: 'Search for an artisan',
-                        hintStyle: TextStyle(fontSize: 14.0),
-                        prefixIcon: Icon(Icons.search, color: Colors.teal),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6),
-                          borderSide: BorderSide.none,
-                        ),
-                        isDense: true,
-                      ),
-                    ),
+              child: TextField(
+                onChanged: (value) {
+                  setState(() {
+                    searchQuery = value;
+                  });
+                },
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: 'Search artisans...',
+                  labelStyle: const TextStyle(
+                    color: Colors.white,
                   ),
-                  SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () {},
-                    style:
-                        ElevatedButton.styleFrom(backgroundColor: Colors.teal),
-                    child: Text(
-                      'Search',
-                      style: TextStyle(color: Colors.white),
-                    ),
+                  prefixIcon: const Icon(
+                    Icons.search,
+                    size: 30,
+                    color: Colors.white,
                   ),
-                ],
-              ),
-            ),
-
-            SizedBox(height: 20),
-
-            // Popular Categories Section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'Popular Categories',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  focusedBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
+                  enabledBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide:
+                        const BorderSide(color: Colors.white, width: 10),
+                  ),
                 ),
               ),
             ),
+            const SizedBox(height: 20),
 
-            SizedBox(height: 10),
-
-            Container(
-              height: 100,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                children: [
-                  _buildCategoryCard('Plumber', Icons.plumbing),
-                  _buildCategoryCard('Electrician', Icons.electrical_services),
-                  _buildCategoryCard('Carpenter', Icons.handyman),
-                  _buildCategoryCard('Tailor', Icons.design_services),
-                ],
+            // Categories Dropdown
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(82, 24, 8, 8),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                  value: selectedCategory,
+                  hint: const Text(
+                    "Select a Category",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  dropdownColor: Colors.teal,
+                  icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                  iconSize: 30,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedCategory = newValue!;
+                    });
+                  },
+                  items: categories
+                      .map<DropdownMenuItem<String>>((String category) {
+                    return DropdownMenuItem<String>(
+                      value: category,
+                      child: Text(category),
+                    );
+                  }).toList(),
+                )),
               ),
             ),
-
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             // Featured Artisans Section
             const Padding(
@@ -189,76 +234,91 @@ class MainHomPage extends StatelessWidget {
                 ),
               ),
             ),
-
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16.0),
-                itemCount: 4,
-                itemBuilder: (context, index) {
-                  return Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    margin: EdgeInsets.only(bottom: 10),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.teal,
-                        child: Icon(
-                          Icons.person,
-                          color: Colors.white,
+              child: FutureBuilder<List<Artisan>>(
+                future: fetchArtisans(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'No artisans found!',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
+                  }
+
+                  final artisans = snapshot.data!
+                      .where((artisan) =>
+                          artisan.fullName
+                              .toLowerCase()
+                              .contains(searchQuery.toLowerCase()) ||
+                          artisan.specialty
+                              .toLowerCase()
+                              .contains(searchQuery.toLowerCase()) ||
+                          artisan.location
+                              .toLowerCase()
+                              .contains(searchQuery.toLowerCase()))
+                      .where((artisan) =>
+                          selectedCategory == 'All' ||
+                          artisan.specialty == selectedCategory)
+                      .toList();
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.all(16.0),
+                    itemCount: artisans.length,
+                    itemBuilder: (context, index) {
+                      final artisan = artisans[index];
+                      return Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
                         ),
-                      ),
-                      title: Text('Artisan ${index + 1}'),
-                      subtitle: Text(
-                        'Profession: Example Profession\nRating: 4.${index + 5}',
-                        maxLines: 3,
-                      ),
-                      dense: true,
-                      trailing: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.teal),
-                        child: Text(
-                          'Contact',
-                          style: TextStyle(
-                            color: Colors.white,
+                        margin: const EdgeInsets.only(bottom: 10),
+                        child: ListTile(
+                          leading: ClipOval(
+                            child: Image.network(
+                              artisan.profilePictureUrl,
+                              width: 50.0,
+                              height: 50.0,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          title: Text(artisan.fullName),
+                          subtitle: Text(
+                            'Specialty: ${artisan.specialty}\nExperience: ${artisan.experience} years',
+                          ),
+                          dense: true,
+                          trailing: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ArtisanProfilePage(
+                                    artisan: artisan,
+                                  ),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.teal,
+                            ),
+                            child: const Text(
+                              'View',
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   );
                 },
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildCategoryCard(String title, IconData icon) {
-    return Container(
-      width: 120,
-      margin: const EdgeInsets.only(right: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 40, color: Colors.teal),
-          SizedBox(height: 8),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.teal,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
       ),
     );
   }

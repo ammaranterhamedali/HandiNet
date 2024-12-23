@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:handi_net_app/models/message.dart';
+import 'package:handi_net_app/models/messageModel.dart';
 
 class ChatBuble extends StatelessWidget {
   const ChatBuble({

@@ -1,109 +1,245 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:handi_net_app/components/ProfileDetailRow.dart';
+import 'package:handi_net_app/components/chatPage.dart';
 import 'package:handi_net_app/components/showMessage.dart';
 import 'package:handi_net_app/models/artisanModel.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ArtisanProfilePage extends StatefulWidget {
-  const ArtisanProfilePage({super.key});
+  const ArtisanProfilePage({super.key, required this.artisan});
+  final Artisan artisan;
 
   @override
   State<ArtisanProfilePage> createState() => _ArtisanProfilePageState();
 }
 
 class _ArtisanProfilePageState extends State<ArtisanProfilePage> {
-  Artisan? artisan;
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchArtisanData();
-  }
-
-  Future<void> _fetchArtisanData() async {
-    try {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        DocumentSnapshot userDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get();
-
-        if (userDoc.exists) {
-          Map<String, dynamic> data = userDoc.data() as Map<String, dynamic>;
-          setState(() {
-            artisan = Artisan.fromMap({
-              'email': data['email'] ?? 'Not Provided',
-              'fullName': data['fullName'] ?? 'Not Provided',
-              'bio': data['bio'] ?? 'No bio available',
-              'location': data['location'] ?? 'Not Provided',
-              'mobile': data['mobile'] ?? 'Not Provided',
-              'specialty': data['specialty'] ?? 'Not Provided',
-              'experience': data['experience'] ?? 'Not Provided',
-            });
-            isLoading = false;
-          });
-        } else {
-          if (!mounted) return;
-          showMessage(context, message: "Artisan document does not exist.");
-        }
-      }
-    } catch (e) {
-      if (!mounted) return;
-      showMessage(context, message: "Error fetching artisan data: $e");
-    }
-  }
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
+    final List<String> workSampleUrls = [
+      'https://www.upflip.com/wp-content/uploads/2024/09/Handyman-maintenance-skills.jpg',
+      'https://imgcdn.stablediffusionweb.com/2024/9/17/45d1baeb-339f-4d82-9d33-79e48652cebb.jpg',
+      'https://www.shutterstock.com/image-photo/hvac-technician-performing-air-conditioner-600nw-2488702851.jpg',
+      'https://img.freepik.com/free-photo/man-electrical-technician-working-switchboard-with-fuses_169016-24062.jpg',
+    ];
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(artisan?.fullName ?? 'Artisan Profile'),
+        title: Text(
+          widget.artisan.fullName,
+          style: const TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.teal,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : artisan == null
-              ? const Center(child: Text('No artisan data available'))
-              : Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ProfileDetailRow(
-                        icon: Icons.person,
-                        label: 'Name',
-                        value: artisan!.fullName,
+          : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.shade300,
+                            blurRadius: 6,
+                            spreadRadius: 2,
+                          ),
+                        ],
                       ),
-                      ProfileDetailRow(
-                        icon: Icons.info,
-                        label: 'Bio',
-                        value: artisan!.bio,
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(50),
+                                child: Image.network(
+                                  widget.artisan.profilePictureUrl,
+                                  height: 100,
+                                  width: 100,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Text(
+                                  widget.artisan.fullName,
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.teal,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            height: 200,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: workSampleUrls.length,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Image.network(
+                                      workSampleUrls[index],
+                                      height: 200,
+                                      width: 300,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       ),
-                      ProfileDetailRow(
-                        icon: Icons.location_on,
-                        label: 'Location',
-                        value: artisan!.location,
+                    ),
+                    const SizedBox(height: 20),
+                    Card(
+                      elevation: 3,
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      ProfileDetailRow(
-                        icon: Icons.phone,
-                        label: 'Phone Number',
-                        value: artisan!.mobile,
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ProfileDetailRow(
+                              icon: Icons.info,
+                              label: 'Bio',
+                              value: widget.artisan.bio,
+                            ),
+                            const Divider(color: Colors.grey),
+                            ProfileDetailRow(
+                              icon: Icons.location_on,
+                              label: 'Location',
+                              value: widget.artisan.location,
+                            ),
+                            const Divider(color: Colors.grey),
+                            ProfileDetailRow(
+                              icon: Icons.phone,
+                              label: 'Phone Number',
+                              value: widget.artisan.mobile,
+                            ),
+                            const Divider(color: Colors.grey),
+                            ProfileDetailRow(
+                              icon: Icons.work,
+                              label: 'Specialty',
+                              value: widget.artisan.specialty,
+                            ),
+                            const Divider(color: Colors.grey),
+                            ProfileDetailRow(
+                              icon: Icons.star,
+                              label: 'Experience',
+                              value: '${widget.artisan.experience} years',
+                            ),
+                          ],
+                        ),
                       ),
-                      ProfileDetailRow(
-                        icon: Icons.work,
-                        label: 'Specialty',
-                        value: artisan!.specialty,
-                      ),
-                      ProfileDetailRow(
-                        icon: Icons.star,
-                        label: 'Experience',
-                        value: '${artisan!.experience} years',
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () async {
+                              final String phoneNumber = widget.artisan.mobile;
+                              final Uri phoneUri =
+                                  Uri(scheme: 'tel', path: phoneNumber);
+
+                              try {
+                                if (await canLaunchUrl(phoneUri)) {
+                                  await launchUrl(
+                                    phoneUri,
+                                    mode: LaunchMode.externalApplication,
+                                  );
+                                } else {
+                                  if (mounted) {
+                                    showMessage(context,
+                                        message:
+                                            'Unable to open the phone dialer.');
+                                  }
+                                }
+                              } catch (e) {
+                                if (mounted) {
+                                  showMessage(context, message: 'Error: $e');
+                                }
+                              }
+                            },
+                            icon: const Icon(
+                              Icons.phone,
+                              color: Colors.white,
+                            ),
+                            label: const Text(
+                              'Call Now',
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.teal,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) {
+                                  return ChatPage(
+                                    email: widget.artisan.email,
+                                  );
+                                }),
+                              );
+                            },
+                            icon: const Icon(
+                              Icons.message,
+                              color: Colors.white,
+                            ),
+                            label: const Text(
+                              'Message',
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blueAccent,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
+              ),
+            ),
     );
   }
 }

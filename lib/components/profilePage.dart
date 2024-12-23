@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'UserProfilePage.dart'; 
-import 'ArtisanProfilePage.dart'; 
+import 'package:handi_net_app/models/artisanModel.dart';
+import 'package:handi_net_app/models/userModel.dart';
+import 'UserProfilePage.dart';
+import 'ArtisanProfilePage.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -12,8 +14,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  String userType = ''; 
-
+  String userType = '';
   @override
   void initState() {
     super.initState();
@@ -39,8 +40,48 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return userType == 'Craftsman'
-        ? const ArtisanProfilePage()
-        : const UserProfilePage();
+    if (userType == 'Craftsman') {
+      return FutureBuilder<DocumentSnapshot>(
+        future: FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .get(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError || !snapshot.hasData) {
+            return const Center(child: Text("Error loading artisan profile."));
+          }
+
+          final artisanData = snapshot.data!.data() as Map<String, dynamic>;
+          final artisan = Artisan.fromMap(artisanData);
+
+          return ArtisanProfilePage(artisan: artisan);
+        },
+      );
+    } else {
+  return FutureBuilder<DocumentSnapshot>(
+        future: FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .get(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError || !snapshot.hasData) {
+            return const Center(child: Text("Error loading user profile."));
+          }
+
+          final userData = snapshot.data!.data() as Map<String, dynamic>;
+          final user = UserModel.fromMap(userData);
+
+          return UserProfilePage(user: user);
+        },
+      );
+    }
   }
 }
